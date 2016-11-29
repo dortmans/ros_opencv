@@ -1,0 +1,7 @@
+<launch>
+    <arg name="topic" default="/fake_cam/image_raw" />
+    <arg name="image_dir" default="$(find ros_opencv)/images" />
+    <arg name="image" default="testimage.jpg" />
+    <node name="fake_camera" pkg="ros_opencv" type="broadcast.py" respawn="false" 
+            args="$(arg topic) $(arg image_dir)/$(arg image)" output="screen" />
+</launch>

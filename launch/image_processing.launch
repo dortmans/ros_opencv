@@ -1,0 +1,7 @@
+<launch>
+  <arg name="image" default="/fake_cam/image_raw" />
+  <node name="image_processor" pkg="ros_opencv" type="image_processor.py" respawn="false">
+    <remap from="image_raw" to="$(arg image)" />
+    <remap from="image_processed" to="/image_processed" />
+  </node>
+</launch>
