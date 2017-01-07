@@ -14,15 +14,15 @@ import numpy as np
 import sys
 
 __author__ = "Eric Dortmans"
-__copyright__   = "Copyright 2016, Fontys"
+__copyright__ = "Copyright 2016, Fontys"
+
 
 class ImageProcessor:
-
     def __init__(self):
         self.bridge = CvBridge()
-        self.image_subscriber = rospy.Subscriber("image_raw",Image, self.process_message, queue_size=1)
+        self.image_subscriber = rospy.Subscriber("image_raw", Image, self.process_message, queue_size=1)
         self.image_publisher = rospy.Publisher("image_processed", Image, queue_size=1)
-        
+
     def to_cv2(self, image_msg):
         """Convert ROS image message to OpenCV image
         """
@@ -39,7 +39,7 @@ class ImageProcessor:
             image_msg = self.bridge.cv2_to_imgmsg(image, "bgr8")
         except CvBridgeError, e:
             print(e)
-        return image_msg 
+        return image_msg
 
     def process_message(self, image_msg):
         """Process received ROS image message
@@ -53,24 +53,22 @@ class ImageProcessor:
 
         This is where the magic happens...
         """
-
-        # Start with a copy of the original
+        cv2.imshow("image", image)
         processed_image = image
-        #-------------------------------------------------
+        # -------------------------------------------------
 
         #
         # TODO: Put your OpenCV image processing code here
         #
 
+        # -------------------------------------------------
         cv2.imshow("processed_image", processed_image)
         cv2.waitKey(3)
 
-        #-------------------------------------------------
         return processed_image
 
 
 def main(args):
-
     rospy.init_node('image_processor', anonymous=True)
     ip = ImageProcessor()
     rospy.spin()

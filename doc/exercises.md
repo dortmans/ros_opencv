@@ -163,44 +163,61 @@ Conversion from RGB to HSV is simple. Just add following line in the code:
 hsv = cv2.cvtColor(image,cv2.COLOR_BGR2HSV)
 ```
 
-We need two thresholds (let us call them min and max) to select a range of colors. For instance: 
+We need two thresholds (let us call them min and max) to select a range of colors.
+Let us create trackbars to be able to select the right values. 
+Let us also add functionality to display the RGB and HSV value of the image pixel under the mouse.
 
 ```
-h_min, h_max =  30, 100     # H range
-s_min, s_max =  100, 255    # S range
-v_min, v_max =  0, 255      # V range
-```
+if self.opencv_init:
+    self.opencv_init = False
 
-Let us create trackbars to be able to select the right values:
+    def process_mouse_event(event, x, y, flags, param):
+    """ Process mouse events so that you can see the color values associated
+        with a particular pixel in the camera images """
+        image_info_window = 255 * np.ones((100, 500, 3))
+        cv2.putText(image_info_window, 'RGB (b=%d,g=%d,r=%d)' % (
+            image[y, x, 0], image[y, x, 1], image[y, x, 2]), (5, 40),
+            cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0))
+        cv2.imshow('image_info', image_info_window)
+        cv2.putText(image_info_window, 'HSV (h=%d,s=%d,v=%d)' % (
+            hsv[y, x, 0], hsv[y, x, 1], hsv[y, x, 2]), (5, 80),
+            cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0))
+        cv2.imshow('image_info', image_info_window)
+        cv2.waitKey(5)
 
-```
-def onTrackbarChange(trackbarValue):
-    global blobs
-    global processed_image
-    h_min = cv2.getTrackbarPos('H_min','trackbars')
-    s_min = cv2.getTrackbarPos('S_min','trackbars')
-    v_min = cv2.getTrackbarPos('V_min','trackbars')
-    h_max = cv2.getTrackbarPos('H_max','trackbars')
-    s_max = cv2.getTrackbarPos('S_max','trackbars')
-    v_max = cv2.getTrackbarPos('V_max','trackbars')
+    cv2.setMouseCallback('image', process_mouse_event)    
 
-cv2.namedWindow('trackbars')
-cv2.createTrackbar('H_min', 'trackbars',h_min,179, onTrackbarChange)
-cv2.createTrackbar('H_max', 'trackbars',h_max,179, onTrackbarChange)
-cv2.createTrackbar('S_min', 'trackbars',s_min,255, onTrackbarChange)
-cv2.createTrackbar('S_max', 'trackbars',s_max,255, onTrackbarChange)
-cv2.createTrackbar('V_min', 'trackbars',v_min,255, onTrackbarChange)
-cv2.createTrackbar('V_max', 'trackbars',v_max,255, onTrackbarChange)
+    self.h_min, self.h_max = 30, 100  # H range
+    self.s_min, self.s_max = 100, 255  # S range
+    self.v_min, self.v_max = 0, 255  # V range
+
+    def onTrackbarChange(trackbarValue):
+        global blobs
+        global processed_image
+        self.h_min = cv2.getTrackbarPos('H_min', 'trackbars')
+        self.s_min = cv2.getTrackbarPos('S_min', 'trackbars')
+        self.v_min = cv2.getTrackbarPos('V_min', 'trackbars')
+        self.h_max = cv2.getTrackbarPos('H_max', 'trackbars')
+        self.s_max = cv2.getTrackbarPos('S_max', 'trackbars')
+        self.v_max = cv2.getTrackbarPos('V_max', 'trackbars')
+
+    cv2.namedWindow('trackbars')
+    cv2.createTrackbar('H_min', 'trackbars', self.h_min, 179, onTrackbarChange)
+    cv2.createTrackbar('H_max', 'trackbars', self.h_max, 179, onTrackbarChange)
+    cv2.createTrackbar('S_min', 'trackbars', self.s_min, 255, onTrackbarChange)
+    cv2.createTrackbar('S_max', 'trackbars', self.s_max, 255, onTrackbarChange)
+    cv2.createTrackbar('V_min', 'trackbars', self.v_min, 255, onTrackbarChange)
+    cv2.createTrackbar('V_max', 'trackbars', self.v_max, 255, onTrackbarChange)
 ```
 
 Now apply color range filtering:
 
 ```
-COLOR_MIN = np.array([h_min, s_min, v_min],np.uint8)
-COLOR_MAX = np.array([h_max, s_max, v_max],np.uint8)
+COLOR_MIN = np.array([self.h_min, self.s_min, self.v_min], np.uint8)
+COLOR_MAX = np.array([self.h_max, self.s_max, self.v_max], np.uint8)
 blobs = cv2.inRange(hsv, COLOR_MIN, COLOR_MAX)
-if(blobs[0, 0] == 255): blobs = cv2.bitwise_not(blobs)
-cv2.imshow('Blobs',blobs)
+if (blobs[0, 0] == 255): blobs = cv2.bitwise_not(blobs)
+cv2.imshow('blobs', blobs)
 ```
 
 The image with blobs can also be used as a mask for the original image (see *bitwise_and* in code above).

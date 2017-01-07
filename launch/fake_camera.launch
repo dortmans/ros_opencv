@@ -4,7 +4,7 @@
     <arg name="image" default="testimage1.jpg" />
     <node name="fake_camera" pkg="ros_opencv" type="broadcast.py" respawn="false" 
             args="$(arg topic) $(arg image_dir)/$(arg image)" output="screen">
-        <param name="rate" type="int" value="1" />
+        <param name="rate" type="int" value="30" />
         <param name="resize" type="bool" value="true" />
         <param name="width" type="int" value="640" />
         <param name="height" type="int" value="480" />
