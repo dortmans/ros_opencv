@@ -32,6 +32,7 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+from __future__ import print_function
 import sys
 import time
 import math
@@ -51,29 +52,38 @@ class Source:
         self.pub            = rospy.Publisher(topic, sensor_msgs.msg.Image, queue_size=1)
         self.pub_compressed = rospy.Publisher(topic + "/compressed", sensor_msgs.msg.CompressedImage, queue_size=1)
         self.filenames      = filenames
+        self.rate = rospy.Rate(rospy.get_param('~rate', 1)) # publishing rate (Hz)
+        self.resize = rospy.get_param('~resize', True) # resize (true/false)
+        self.width = rospy.get_param('~width', 640)  # max image width (pixels)
+        self.height = rospy.get_param('~height', 480) # max image height (pixels)
 
     def spin(self):
-        #time.sleep(1.0)
         cvb = CvBridge()
         while not rospy.core.is_shutdown():
             cvim = cv2.imread(self.filenames[0])
+            if(self.resize): # resize image
+                h, w = cvim.shape[:2]
+                factor = min(self.height / float(h), self.width / float(w))
+                if factor < 1:
+                    dim = (int(w * factor), int(h * factor))
+                    cvim = cv2.resize(cvim, dim, interpolation=cv2.INTER_AREA)
             self.pub.publish(cvb.cv2_to_imgmsg(cvim, "bgr8"))
             self.pub_compressed.publish(cvb.cv2_to_compressed_imgmsg(cvim))
             self.filenames = self.filenames[1:] + [self.filenames[0]]
-            time.sleep(1)
+            self.rate.sleep()
 
 
 def main(args):
+    rospy.init_node('Source')
     files = [args[2]]
     #files = glob.glob(args[2] + "*.jpg")
     s = Source(args[1], files)
-    rospy.init_node('Source')
     try:
         s.spin()
         rospy.spin()
         outcome = 'test completed'
     except KeyboardInterrupt:
-        print "shutting down"
+        print("shutting down")
         outcome = 'keyboard interrupt'
     rospy.core.signal_shutdown(outcome)
 

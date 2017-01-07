@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+"""image_processor.py: Template image processing node."""
+
 # For Python2/3 compatibility
 from __future__ import print_function
 from __future__ import division
@@ -12,6 +14,7 @@ import numpy as np
 import sys
 
 __author__ = "Eric Dortmans"
+__copyright__   = "Copyright 2016, Fontys"
 
 class ImageProcessor:
 
@@ -55,7 +58,9 @@ class ImageProcessor:
         processed_image = image
         #-------------------------------------------------
 
+        #
         # TODO: Put your OpenCV image processing code here
+        #
 
         cv2.imshow("processed_image", processed_image)
         cv2.waitKey(3)

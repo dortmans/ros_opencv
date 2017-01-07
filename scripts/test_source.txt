@@ -1,6 +1,0 @@
-roscore
-
-rosrun ros_opencv source.py
-
-rosrun image_view image_view image:=/opencv_tests/images
-rosrun image_view image_view image:=/opencv_tests/images _image_transport:=compressed
