@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-"""image_processor.py: Template image processing node."""
+"""ROS OpenCV image processing node."""
 
 # For Python2/3 compatibility
 from __future__ import print_function
@@ -18,43 +18,91 @@ __copyright__ = "Copyright 2016, Fontys"
 
 
 class ImageProcessor:
+    """This class processes ROS Images using OpenCV
+
+    """
+
     def __init__(self):
         self.bridge = CvBridge()
-        self.image_subscriber = rospy.Subscriber("image_raw", Image, self.process_message, queue_size=1)
+        self.image_subscriber = rospy.Subscriber("image_raw", Image, self.on_image_message, queue_size=1)
         self.image_publisher = rospy.Publisher("image_processed", Image, queue_size=1)
+        self.process_image_setup()
 
     def to_cv2(self, image_msg):
         """Convert ROS image message to OpenCV image
+
         """
         try:
             image = self.bridge.imgmsg_to_cv2(image_msg, 'bgr8')
-        except CvBridgeError, e:
+        except CvBridgeError as e:
             print(e)
         return image
 
     def to_imgmsg(self, image):
         """Convert OpenCV image to ROS image message
+
         """
         try:
             image_msg = self.bridge.cv2_to_imgmsg(image, "bgr8")
-        except CvBridgeError, e:
+        except CvBridgeError as e:
             print(e)
         return image_msg
 
-    def process_message(self, image_msg):
+    def on_image_message(self, image_msg):
         """Process received ROS image message
         """
-        image = self.to_cv2(image_msg)
-        processed_image = self.process_image(image)
-        self.image_publisher.publish(self.to_imgmsg(processed_image))
+        self.image = self.to_cv2(image_msg)
+        self.processed_image = self.image
+        self.process_image()
+        self.image_publisher.publish(self.to_imgmsg(self.processed_image))
 
-    def process_image(self, image):
+    def on_mouse_event(self, event, x, y, flags, param):
+        """ Handle mouse events
+
+        """
+        # -------------------------------------------------
+
+        #
+        # TODO: Put OpenCV code here to handle mouse events
+        #
+
+        # -------------------------------------------------
+
+    def on_trackbar_change(self, trackbarValue):
+        """Handle trackbar change
+
+        """
+        # -------------------------------------------------
+
+        #
+        # TODO: Put OpenCV code here to handle trackbar change
+        #
+
+        # -------------------------------------------------
+
+    def process_image_setup(self):
+        """Setup for image processing. 
+
+        This code will run only once to setup image processing.
+        """
+        cv2.namedWindow('image')
+        cv2.setMouseCallback('image', self.on_mouse_event)
+        # -------------------------------------------------
+
+        #
+        # TODO: Put your OpenCV setup code here. 
+        #
+
+        # -------------------------------------------------
+
+    def process_image(self):
         """Process the image using OpenCV
 
-        This is where the magic happens...
+        This code is run for reach image
         """
-        cv2.imshow("image", image)
-        processed_image = image
+
+        cv2.imshow("image", self.image)
+
         # -------------------------------------------------
 
         #
@@ -62,10 +110,9 @@ class ImageProcessor:
         #
 
         # -------------------------------------------------
-        cv2.imshow("processed_image", processed_image)
-        cv2.waitKey(3)
 
-        return processed_image
+        cv2.imshow("processed_image", self.processed_image)
+        cv2.waitKey(3)
 
 
 def main(args):

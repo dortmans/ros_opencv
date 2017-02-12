@@ -50,7 +50,7 @@ class Source:
 
     def __init__(self, topic, filenames):
         self.pub            = rospy.Publisher(topic, sensor_msgs.msg.Image, queue_size=1)
-        self.pub_compressed = rospy.Publisher(topic + "/compressed", sensor_msgs.msg.CompressedImage, queue_size=1)
+        #self.pub_compressed = rospy.Publisher(topic + "/compressed", sensor_msgs.msg.CompressedImage, queue_size=1)
         self.filenames      = filenames
         self.rate = rospy.Rate(rospy.get_param('~rate', 1)) # publishing rate (Hz)
         self.resize = rospy.get_param('~resize', True) # resize (true/false)
@@ -68,7 +68,7 @@ class Source:
                     dim = (int(w * factor), int(h * factor))
                     cvim = cv2.resize(cvim, dim, interpolation=cv2.INTER_AREA)
             self.pub.publish(cvb.cv2_to_imgmsg(cvim, "bgr8"))
-            self.pub_compressed.publish(cvb.cv2_to_compressed_imgmsg(cvim))
+            #self.pub_compressed.publish(cvb.cv2_to_compressed_imgmsg(cvim))
             self.filenames = self.filenames[1:] + [self.filenames[0]]
             self.rate.sleep()
 
